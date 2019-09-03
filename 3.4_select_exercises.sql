@@ -1,25 +1,19 @@
-use employees;
+use albums_db;
 
-show tables;
+describe albums;
 
-show create table employees;
+select name from `albums`where artist = "Pink Floyd";
 
+describe albums;
 
-CREATE TABLE `employees` (
-  `emp_no` int(11) NOT NULL,
-  `birth_date` date NOT NULL,
-  `first_name` varchar(14) NOT NULL,
-  `last_name` varchar(16) NOT NULL,
-  `gender` enum('M','F') NOT NULL,
-  `hire_date` date NOT NULL,
-  PRIMARY KEY (`emp_no`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1
+select release_date from albums where `name` = "Sgt. Pepper\'s Lonely Hearts Club Band";
 
-6   Employee Number, 
-7    First and Last Name gender?
+select genre from albums where `name` = "Nevermind";
 
-8    birth_date and hire_date
+select name from `albums`where release_date <= 1999 and release_date >=1990; 
 
-9   departments shares records with employees 
+select name
+from `albums`
+where sales < 20;
 
-10  show create table employees.`dept_manager`;
+select name from `albums` where genre = 'Rock';
