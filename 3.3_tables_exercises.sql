@@ -20,6 +20,6 @@ CREATE TABLE `employees` (
 
 8    birth_date and hire_date
 
-9   departments is a table in employees
+9   departments shares records with employees 
 
 10  show create table employees.`dept_manager`;
