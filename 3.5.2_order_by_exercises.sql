@@ -2,9 +2,22 @@ use employees;
 
 show create table employees;
 
-select first_name
+select first_name, last_name
 from `employees`
-Where first_name in ('Irena', 'Vidya', 'Maya');
+Where first_name in ('Irena', 'Vidya', 'Maya')
+ORDER BY first_name;
+
+select first_name, last_name
+from `employees`
+Where first_name in ('Irena', 'Vidya', 'Maya')
+ORDER BY first_name, last_name;
+
+select first_name, last_name
+from `employees`
+Where first_name in ('Irena', 'Vidya', 'Maya')
+ORDER BY last_name, first_name;
+
+
 
 select last_name
 from `employees`
@@ -31,7 +44,12 @@ from `employees`
 Where first_name in ('Irena', 'Vidya', 'Maya')
 and gender = 'M';
 
-select last_name
+select last_name, emp_no
+from `employees`
+where last_name like 'e%' or last_name like '%e'
+ORDER BY last_name, emp_no;
+
+select last_name, emp_no
 from `employees`
 where last_name like 'e%' or last_name like '%e';
 
@@ -39,10 +57,11 @@ select last_name
 from `employees`
 where last_name like 'e%e';
 
-select birth_date
+select first_name, last_name, birth_date, hire_date
 from `employees`
 where birth_date like '%%%%-12-25'
-and hire_date like '199%-%%-%%';
+and hire_date like '199%-%%-%%'
+ORDER BY birth_date, hire_date DESC;
 
 select last_name 
 from `employees`
