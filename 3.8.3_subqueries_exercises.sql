@@ -161,4 +161,101 @@ JOIN
 	) STDDEVCHECK
 
 
+/*Find all the department names that currently have female managers.
++-----------------+
+| dept_name       |
++-----------------+
+| Development     |
+| Finance         |
+| Human Resources |
+| Research        |
++-----------------+
+	*/
+	SELECT
+		D.dept_name as DEPARTMENT
+	FROM
+		departments D
+	JOIN
+		(SELECT
+			DM.dept_no
+			,CONCAT(e.first_name,' ',e.last_name) as dept_mgr
+			,E.gender
+		FROM
+			employees as E
+		JOIN
+			dept_manager as DM
+			ON E.emp_no = DM.emp_no
+			AND DM.to_date > NOW()
+			) DM
+		ON DM.dept_no = D.dept_no
+	WHERE
+		DM.gender = 'F'
+	ORDER BY D.dept_name
+	;
+	
+/*
+Find the first and last name of the employee with the highest salary.
++------------+-----------+
+| first_name | last_name |
++------------+-----------+
+| Tokuyasu   | Pesch     |
++------------+-----------+
+	*/
+	SELECT
+		e.first_name
+		,e.last_name
+	FROM
+		employees e
+	JOIN
+		(SELECT
+			emp_no
+			,salary
+		FROM
+			salaries
+		WHERE
+			to_date > NOW()
+		ORDER BY
+			salary DESC
+		LIMIT 1
+		) mcs
+		ON e.emp_no = mcs.emp_no
+	;
+
+/*
+Find the department name that the employee with the highest salary works in.
++-----------+
+| dept_name |
++-----------+
+| Sales     |
++-----------+
+	*/
+	SELECT
+		D.dept_name as DEPARTMENT
+	FROM
+		departments as D
+	JOIN
+		(SELECT
+			emp_no
+			,dept_no
+		FROM
+			dept_emp
+		WHERE
+			to_date > NOW()
+		) as CD
+		ON D.dept_no = CD.dept_no
+	JOIN
+		(SELECT
+			emp_no
+			,salary
+		FROM
+			salaries
+		WHERE
+			to_date > NOW()
+		ORDER BY
+			salary DESC
+		LIMIT 1
+		) as MCS
+		ON CD.emp_no = MCS.emp_no
+	;
+	
 
