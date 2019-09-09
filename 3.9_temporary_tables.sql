@@ -229,3 +229,40 @@ on d.dept_no = de.dept_no
 join salaries as s 
 on de.emp_no = s.emp_no
 Group By d.`dept_name`
+
+
+use bayes_812;
+
+
+select * from employees.departments;
+select * from employees.salaries;
+select * from employees.dept_emp;
+select * from employees.dept_manager;
+select * from employees.employees;
+select * from employees.titles;
+
+/* Create temporary table that finds the total number of years a current employ has been working at the company.
+		subtract minimum years from total years(17).  Group by years. */
+create temporary table years1
+select (substring(dept_emp.to_date, 1,4) - 7980 -17) - substring(dept_emp.from_date,1,4) as years_with_company, avg(salaries.salary) as avg_salary
+from employees.dept_emp
+join employees.salaries using(emp_no)
+where dept_emp.to_date = '9999-01-01' and salaries.to_date = '9999-01-01'
+group by years_with_company;
+
+select * from years1;
+
+alter table years1 add column avg_tot int;
+
+alter table years1 add column std_dev int;
+
+select * from years1;
+
+update years1
+set avg_tot = 72012.2359;
+
+update years1
+set std_dev = 17309.95933634675;
+
+select years_with_company, ((avg_salary - avg_tot) / std_dev) as z_score
+from years1;
