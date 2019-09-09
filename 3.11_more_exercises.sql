@@ -1,3 +1,59 @@
+/*
+How much do the current managers of each department get paid, relative to the average salary for the department? Is there any department where the department manager gets paid less than the average salary?
+	*/
+	-- Thanks Kevin
+	SELECT
+		concat(CASE WHEN smgr.MgrSal > savg.AvgSal THEN '+' ELSE '' END,
+				ROUND(100*((smgr.MgrSal/savg.AvgSal)-1),2),'%') MgrSalIdx
+		,smgr.MgrSal
+		,savg.AvgSal
+		,d.dept_name
+		,smgr.dept_mgr
+	FROM
+		departments d
+	JOIN
+		(SELECT
+			dm.dept_no
+			,CONCAT(e.first_name,' ',e.last_name) dept_mgr
+			,s.salary MgrSal
+		FROM
+			employees e
+		JOIN
+			dept_manager dm
+			ON e.emp_no = dm.emp_no
+			AND dm.to_date > NOW()
+		JOIN
+			salaries s
+			ON e.emp_no = s.emp_no
+			AND s.to_date > NOW()
+		) smgr
+		ON d.dept_no = smgr.dept_no
+	JOIN
+		(SELECT
+			de.dept_no
+			,AVG(salary) as AvgSal
+		FROM
+			employees e
+		JOIN
+			dept_emp de
+			ON e.emp_no = de.emp_no
+			AND de.to_date > NOW()
+		JOIN
+			salaries s
+			ON e.emp_no = s.emp_no
+			AND s.to_date > NOW()
+		GROUP BY
+			de.dept_no
+		) savg
+		ON d.dept_no = savg.dept_no
+	ORDER BY (smgr.MgrSal/savg.AvgSal) DESC
+	;
+
+
+
+
+
+
 use world;
 
 /*World Database
@@ -815,13 +871,14 @@ limit 1;
 
 
 
-select concat(last_name,", ",first_name) as actor_name,
+select actor_id, concat(last_name,", ",first_name) as actor_name,
 count(*) as total
 from actor
 join film_actor using(actor_id)
-group by actor_name
+group by actor_id
 order by total desc
 limit 5;
+
 
 /* What are the sales for each store for each month in 2005?
 
