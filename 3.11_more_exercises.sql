@@ -707,11 +707,11 @@ Select the payment date and amount columns from the payment table for rows where
 Select all columns from the customer table, limiting results to those where the zero-based index is between 101-200. */
 
 Select * from `payment`
-Limit 20;
+LIMIT 20;
 
-Select payment_id, payment_date, amount
-from payment
-Where amount > 5
+SELECT payment_id, payment_date, amount
+FROM payment
+WHERE amount > 5
 LIMIT 1001 OFFSET 999;
 
 SELECT * from `customer`
@@ -767,7 +767,7 @@ Label customer first_name/last_name columns as customer_first_name/customer_last
 Label actor first_name/last_name columns in a similar fashion.
 -- returns correct number of records: 599 */
 
-Select customer.first_name as CUSTOMER_FIRST_NAME,
+SELECT customer.first_name as CUSTOMER_FIRST_NAME,
 	 customer.last_name as CUSTOMER_LAST_NAME, 
 	 actor.first_name as ACTOR_FIRST_NAME, 
 	 actor.last_name as ACTOR_LAST_NAME
@@ -777,7 +777,7 @@ LEFT JOIN actor ON customer.last_name = actor.last_name;
 /* Select the customer first_name/last_name and actor first_name/last_name columns from performing a /right join between the customer and actor column on the last_name column in each table. (i.e. customer.last_name = actor.last_name)
 -- returns correct number of records: 200 */
 
-Select customer.first_name as CUSTOMER_FIRST_NAME,
+SELECT customer.first_name as CUSTOMER_FIRST_NAME,
 	 customer.last_name as CUSTOMER_LAST_NAME, 
 	 actor.first_name as ACTOR_FIRST_NAME, 
 	 actor.last_name as ACTOR_LAST_NAME
@@ -787,7 +787,7 @@ RIGHT JOIN actor ON customer.last_name = actor.last_name;
 /* Select the customer first_name/last_name and actor first_name/last_name columns from performing an inner join between the customer and actor column on the last_name column in each table. (i.e. customer.last_name = actor.last_name)
 returns correct number of records: 43 */
 
-Select customer.first_name as CUSTOMER_FIRST_NAME,
+SELECT customer.first_name as CUSTOMER_FIRST_NAME,
 	 customer.last_name as CUSTOMER_LAST_NAME, 
 	 actor.first_name as ACTOR_FIRST_NAME, 
 	 actor.last_name as ACTOR_LAST_NAME
@@ -798,23 +798,23 @@ INNER JOIN actor ON customer.last_name = actor.last_name;
 -- Returns correct records: 600 */
 
 SELECT city.city as city, country.country as country
-From city
-left join country using(country_id);
+FROM city
+LEFT JOIN country using(country_id);
 
 /* Select the title, description, release year, and language name columns from the film table, performing a left join with the language table to get the "language" column.
 Label the language.name column as "language"
 Returns 1000 rows */
 
 SELECT title, description, release_year, language.name as 'language'
-from film
-left join language using(Language_ID);
+FROM film
+LEFT JOIN language using(Language_ID);
 
 /* Select the first_name, last_name, address, address2, city name, district, and postal code columns from the staff table, performing 2 left joins with the address table then the city table to get the address and city related columns.
 returns correct number of rows: 2 */
 
-SELECT * from staff;
-SELECT * from address;
-SELECT * from city;
+SELECT * FROM staff;
+SELECT * FROM address;
+SELECT * FROM city;
 SELECT staff.first_name, staff.last_name, address.address, address.address2, city.city, address.district, address.postal_code
 FROM staff
 LEFT JOIN address using(`address_id`)
@@ -823,13 +823,13 @@ LEFT JOIN city using(city_id);
 
 -- What is the average replacement cost of a film? Does this change depending on the rating of the film?
 
-SELECT * from film;
+SELECT * FROM film;
 
-Select Avg(replacement_cost)
-from film;
+SELECT AVG(replacement_cost)
+FROM film;
 
-Select rating, AVG(replacement_cost)
-from film
+SELECT rating, AVG(replacement_cost)
+FROM film
 GROUP BY rating;
 
 -- How many different films of each genre are in the database?
@@ -838,8 +838,8 @@ SELECT * from film_category;
 SELECT * from category;
 
 SELECT category.name as CATEGORY, COUNT(category_id) as Total_Count
-from film_category
-join category using(category_id)
+FROM film_category
+JOIN category USING(category_id)
 GROUP BY CATEGORY;
 
 -- What are the 5 frequently rented films?
@@ -848,13 +848,13 @@ SELECT * from rental;
 SELECT * from inventory;
 SELECT * from film;
 
-select title, count(*) as total
-from film
-join inventory using(film_id)
-join rental using(inventory_id)
-group by title
-order by total desc
-limit 5;
+SELECT title, COUNT(*) as total
+FROM film
+JOIN inventory USING(film_id)
+JOIN rental USING(inventory_id)
+GROUP BY title
+ORDER BY total DESC
+LIMIT 5;
 
 /* What are the most most profitable films (in terms of gross revenue)?
 
@@ -870,14 +870,14 @@ limit 5;
 +-------------------+--------+
 5 rows in set (0.17 sec) */
 
-select title, sum(amount) as total
-from film
-join inventory using(film_id)
-join rental using(inventory_id)
-join payment using(rental_id)
-group by title
-order by total desc
-limit 5;
+SELECT title, SUM(amount) as total
+FROM film
+JOIN inventory using(film_id)
+JOIN rental using(inventory_id)
+JOIN payment using(rental_id)
+GROUP BY title
+ORDER BY total DESC
+LIMIT 5;
 
 /* 
 Who is the best customer?
@@ -890,13 +890,13 @@ Who is the best customer?
 +------------+--------+
 -- 1 row in set (0.12 sec) */
 
-select concat(last_name,", ",first_name) as name,
-sum(amount) as total
-from customer
-join payment using(customer_id)
-group by customer_id
-order by total desc
-limit 1;
+SELECT CONCAT(last_name,", ",first_name) as name,
+SUM(amount) as total
+FROM customer
+JOIN payment USING(customer_id)
+GROUP BY customer_id
+ORDER BY total DESC
+LIMIT 1;
 
 /* Who are the most popular actors (that have appeared in the most films)?
 
@@ -914,13 +914,13 @@ limit 1;
 
 
 
-select actor_id, concat(last_name,", ",first_name) as actor_name,
+SELECT CONCAT(last_name,", ",first_name) as actor_name,
 count(*) as total
-from actor
-join film_actor using(actor_id)
-group by actor_id
-order by total desc
-limit 5;
+FROM actor
+JOIN film_actor USING(actor_id)
+GROUP BY actor_id
+ORDER BY total DESC
+LIMIT 5;
 
 
 /* What are the sales for each store for each month in 2005?
@@ -943,8 +943,9 @@ limit 5;
 select month(payment_date) as month,
 store_id,
 sum(amount) as sales
-from payment
-join staff using(staff_id)
+from inventory
+join rental using(inventory_id)
+join payment using(rental_id)
 where payment_date like "2005%"
 group by month,store_id;
 
@@ -963,13 +964,11 @@ group by month,store_id;
 5 rows in set (0.06 sec) */
 
 
-select title,
-concat(last_name,", ",first_name) as customer_name,
-phone,
-address
-from rental
-join customer using(customer_id)
-join address using(address_id)
-join inventory using(inventory_id)
-join film using(film_id)
-where return_date is null;
+SELECT title,
+concat(last_name,", ",first_name) as customer_name, phone, address
+FROM rental
+JOIN customer using(customer_id)
+JOIN address using(address_id)
+JOIN inventory using(inventory_id)
+JOIN film using(film_id)
+WHERE return_date IS NULL;
