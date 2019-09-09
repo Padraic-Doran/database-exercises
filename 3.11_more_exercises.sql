@@ -355,7 +355,7 @@ CREATE TABLE `address` (
 
 /*Use JOIN to display the first and last names, as well as the address, of each staff member.
 	*/
-    
+
 	SELECT
 		s.first_name
 		,s.last_name
@@ -374,4 +374,289 @@ CREATE TABLE `address` (
 		ON a.city_id = c.city_id
 	;
 	
+	-- Use /* JOIN to display the total amount rung up by each staff member in August of 2005. */
+
+	SELECT
+		CONCAT(s.first_name,' ',s.last_name) as staff_member, SUM(p.amount) as total_sales, COUNT(r.rental_id) as rentals
+	FROM
+		rental r
+	JOIN
+		staff s
+		ON r.staff_id = s.staff_id
+	LEFT JOIN
+		payment p
+		ON r.rental_id = p.rental_id
+	WHERE
+		r.rental_date LIKE '2005-08%'
+	GROUP BY
+		s.staff_id
+	;
+
+-- List each film and the number of actors who are listed for that film.
+
+    SELECT
+		f.film_id as FILM_ID, f.title as FILM_TITLE, count(fa.film_id) as ACTOR_NO
+	FROM
+		film f
+	JOIN
+		film_actor fa
+		USING (film_id)
+	GROUP BY
+		f.film_id
+	;
+
+    -- How many copies of the film Hunchback Impossible exist in the inventory system?
 	
+select * from film;	
+
+select * from inventory;
+
+SELECT f.title as FILM_NAME, COUNT(I.film_id) as NO_OF_FILMS
+from film f
+join inventory I
+on f.film_id = I.film_id
+Where f.title = 'Hunchback Impossible'
+Group By f.film_id;
+
+/* The music of Queen and Kris Kristofferson have seen an unlikely resurgence. As an unintended consequence, films starting with the letters K and Q have also soared in popularity. Use subqueries to display the titles of movies starting with the letters K and Q whose language is English. */
+
+
+select * from film;
+select * from language;
+
+
+SELECT F.title
+from film as F
+Where F.title like 'K%' Or F.title like "Q%"
+and language_id = 1;
+
+-- Use subqueries to display all actors who appear in the film Alone Trip.
+
+SELECT CONCAT(a.first_name,' ',a.last_name) as Actor 
+		FROM actor a
+		WHERE a.actor_id IN
+			(SELECT actor_id 
+				FROM film_actor
+				WHERE film_id IN
+						(SELECT film_id
+ 						FROM film
+						WHERE film.title = "Alone Trip"));
+
+-- You want to run an email marketing campaign in Canada, for which you will need the names and email addresses of all Canadian customers.
+
+SELECT * from customer;
+SELECT * from country;  -- 20 --
+SELECT * from address;
+SELECT * from city;
+
+
+SELECT Concat(first_name, ' ', last_name) as CUSTOMER_NAME, email as EMAIL
+from customer
+LEFT JOIN address ON (customer.address_id=address.address_id)
+LEFT JOIN city ON (address.city_id=city.city_id)
+LEFT JOIN country ON (city.country_id=country.country_id)
+WHERE country='Canada';
+
+-- Sales have been lagging among young families, and you wish to target all family movies for a promotion. Identify all movies categorized as famiy films.
+
+SELECT * from film;
+SELECT * from film_category;
+SELECT * from category; -- 8 -- -- Family --
+
+Select F.title as FILM_TITLE
+from film as F
+LEFT JOIN film_category as FC ON F.film_id = FC.film_id 
+LEFT JOIN category as C on FC.`category_id` = C.category_id 
+WHERE C.name = 'Family';
+
+
+-- Write a query to display how much business, in dollars, each store brought in.
+
+Select * from payment;
+SELECT * from store;
+SELECT * from staff;
+
+SELECT SUM(p.amount) as REVENUE, s.staff_id as Store
+FROM payment as p
+LEFT JOIN staff as s ON p.staff_id = s.staff_id
+GROUP BY s.staff_id;
+
+-- Write a query to display for each store its store ID, city, and country.
+
+
+SELECT store.store_id, city.city, country.country
+FROM store
+
+LEFT JOIN address ON (store.address_id=address.address_id)
+
+LEFT JOIN city ON (address.city_id=city.city_id)
+
+LEFT JOIN country ON (city.country_id=country.country_id);
+
+-- List the top five genres in gross revenue in descending order.
+-- (Hint: you may need to use the following tables: category, film_category, inventory, payment, and rental.)
+
+SELECT category.name AS Genre, SUM(payment.amount) AS Gross_Revenue
+
+FROM payment
+
+LEFT JOIN rental ON (payment.rental_id=rental.rental_id)
+
+LEFT JOIN inventory ON (rental.inventory_id=inventory.inventory_id)
+
+LEFT JOIN film_category ON (inventory.film_id=film_category.film_id)
+
+LEFT JOIN category ON (film_category.category_id=category.category_id)
+
+GROUP BY category.name
+
+ORDER BY gross_revenue DESC
+LIMIT 5;
+
+
+/* SELECT statements
+
+Select all columns from the actor table.
+Select only the last_name column from the actor table.
+Select only the following columns from the film table. */
+
+Select * from actor;
+
+Select last_name from actor;
+
+/* DISTINCT operator
+
+Select all distinct (different) last names from the actor table.
+Select all distinct (different) postal codes from the address table.
+Select all distinct (different) ratings from the film table. */
+
+Select DISTINCT last_name from actor;
+Select DISTINCT postal_code from address;
+Select DISTINCT rating from film;
+
+/* WHERE clause
+
+Select the title, description, rating, movie length columns from the films table that last 3 hours or longer.
+Select the payment id, amount, and payment date columns from the payments table for payments made on or after 05/27/2005.
+Select the primary key, amount, and payment date columns from the payment table for payments made on 05/27/2005.
+Select all columns from the customer table for rows that have a last names beginning with S and a first names ending with N.
+Select all columns from the customer table for rows where the customer is inactive or has a last name beginning with "M".
+Select all columns from the category table for rows where the primary key is greater than 4 and the name field begins with either C, S or T.
+Select all columns minus the password column from the staff table for rows that contain a password.
+Select all columns minus the password column from the staff table for rows that do not contain a password. */
+
+Select * from film;
+Select title, description, rating, length from film
+where length > 180;
+
+Select * from payment;
+
+Select payment_id, amount, payment_date
+from payment
+where payment_date >= '05/27/2005';
+
+Select * from payment;
+SELECT payment_id, amount, payment_date
+FROM payment
+WHERE payment_date='05-07-2005';
+
+SELECT * FROM customer
+WHERE last_name LIKE 'S%' AND first_name LIKE '%N';
+
+SELECT * FROM customer
+WHERE active=0 OR last_name LIKE 'M%';
+
+SELECT * FROM customer
+WHERE customer_id>4 OR
+ (first_name LIKE 'C%' OR first_name LIKE 'S%' OR first_name LIKE 'T%');
+ 
+ SELECT
+staff_id,
+first_name,
+last_name,
+address_id,
+picture,
+email,
+store_id,
+active,
+username,
+last_update
+FROM staff
+WHERE password IS NOT NULL;
+
+SELECT
+staff_id,
+first_name,
+last_name,
+address_id,
+picture,
+email,
+store_id,
+active,
+username,
+last_update
+FROM staff
+WHERE password IS NULL;
+
+/* IN operator
+
+Select the phone and district columns from the address table for addresses in California, England, Taipei, or West Java.
+Select the payment id, amount, and payment date columns from the payment table for payments made on 05/25/2005, 05/27/2005, and 05/29/2005. (Use the IN operator and the DATE function, instead of the AND operator as in previous exercises.)
+-- Select all columns from the film table for films rated G, PG-13 or NC-17. */
+Select * from address;
+SELECT phone, district
+FROM address
+WHERE district IN ('California','England','Tapei','West Java');
+
+SELECT * from payment;
+SELECT payment_id, amount,
+DATE(payment_date) AS only_date
+FROM payment
+WHERE only_date IN ('2005-05-25','2005-05-27','2005-05-29');
+
+SELECT * from film
+WHERE rating IN ('G','PG-13','NC-17');
+
+/* BETWEEN operator
+Select all columns from the payment table for payments made between midnight 05/25/2005 and 1 second before midnight 05/26/2005.
+Select the following columns from the film table for films where the length of the description is between 100 and 120. */
+
+
+SELECT * FROM payment
+WHERE payment_date BETWEEN '2005-05-25 23:59:59' AND '2005-05-26 23:59:59';
+
+SELECT * FROM film
+WHERE LENGTH(description) BETWEEN 100 AND 120;
+
+
+/*LIKE operator
+Select the following columns from the film table for rows where the description begins with "A Thoughtful".
+Select the following columns from the film table for rows where the description ends with the word "Boat".
+Select the following columns from the film table where the description contains the word "Database" and the length of the film is greater than 3 hours. */
+
+SELECT * FROM film
+WHERE description LIKE 'A Thoughtful%';
+
+SELECT * FROM film
+WHERE description LIKE '%Boat';
+
+SELECT * FROM film
+WHERE description LIKE '%Database%' AND length>180;
+
+
+/* LIMIT Operator
+
+Select all columns from the payment table and only include the first 20 rows.
+Select the payment date and amount columns from the payment table for rows where the payment amount is greater than 5, and only select rows whose zero-based index in the result set is between 1000-2000.
+Select all columns from the customer table, limiting results to those where the zero-based index is between 101-200. */
+
+Select * from `payment`
+Limit 20;
+
+Select payment_id, payment_date, amount
+from payment
+Where amount > 5
+LIMIT 1001 OFFSET 999;
+
+SELECT * from `customer`
+LIMIT 100 OFFSET 100;
