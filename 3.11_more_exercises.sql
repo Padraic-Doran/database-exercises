@@ -241,3 +241,137 @@ WHERE
 
 country.name NOT LIKE country.localname;
 
+-- What state is city x located in?
+
+select * from country;
+
+select * from city;
+
+select name as city_name, district as state
+from city
+where CountryCode = 'USA'
+order by city.district;
+
+-- What region of the world is city x located in?
+
+select city.name as City_Name, country.region as World_Region
+from `city`
+join country
+on city.countrycode = country.`Code`
+Order by country.region, city.name;
+
+-- What country (use the human readable name) city x located in?
+
+
+select city.name as City_Name, country.name as Country_Name
+from `city`
+join country
+on city.countrycode = country.`Code`
+Order by country.name, city.name;
+
+-- What is the life expectancy in city x?
+
+SELECT city.name as CITY_NAME, country.name as COUNTRY_NAME, country.lifeexpectancy as LIFE_EXPECTANCY
+from city
+join country
+on city.countrycode = country.code
+Order by country.lifeexpectancy DESC;
+
+select * from actor;
+-- Display the first and last names in all lowercase of all the actors.
+
+
+select LOWER(first_name) as FIRST_NAME, LOWER(last_name)as LAST_NAME
+from `actor`
+order by last_name;
+
+/* -- You need to find the ID number, first name, and last name of an actor, of whom you know only the first name, "Joe." What is one query would you could use to obtain this information? */
+
+select actor_id, first_name, `last_name`
+from actor
+where first_name = "Joe";
+
+-- Find all actors whose last name contain the letters "gen":
+
+select actor_id, first_name, last_name
+from actor
+where last_name like "%gen%";
+
+
+-- Find all actors whose last names contain the letters "li". This time, order the rows by last name and first name, in that order.
+
+select actor_id, first_name, last_name
+from actor
+where last_name like "%li%"
+Order BY last_name, first_name;
+
+/* Using IN, display the country_id and country columns for the following countries: Afghanistan, Bangladesh, and China: */
+
+select * from country;
+
+SELECT
+		country_id
+		,country
+	FROM
+		country
+	WHERE
+		country IN ('Afghanistan','Bangladesh','China')
+	;
+	
+-- List the last names of all the actors, as well as how many actors have that last name.
+
+Select last_name, COUNT(*) as actors
+from actor
+GROUP BY `last_name`
+Order BY actors DESC, last_name;
+
+/* List last names of actors and the number of actors who have that last name, but only for names that are shared by at least two actors */
+
+Select last_name, COUNT(*) as actors
+from actor
+GROUP BY `last_name`
+Having actors > 1
+Order BY actors DESC, last_name;
+
+
+SHOW CREATE TABLE address;
+	/*
+CREATE TABLE `address` (
+	`address_id` smallint(5) unsigned NOT NULL AUTO_INCREMENT,
+	`address` varchar(50) NOT NULL,
+	`address2` varchar(50) DEFAULT NULL,
+	`district` varchar(20) NOT NULL,
+	`city_id` smallint(5) unsigned NOT NULL,
+	`postal_code` varchar(10) DEFAULT NULL,
+	`phone` varchar(20) NOT NULL,
+	`location` geometry NOT NULL,
+	`last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+	PRIMARY KEY (`address_id`),
+	KEY `idx_fk_city_id` (`city_id`),
+	SPATIAL KEY `idx_location` (`location`),
+	CONSTRAINT `fk_address_city` FOREIGN KEY (`city_id`) REFERENCES `city` (`city_id`) ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=606 DEFAULT CHARSET=utf8
+*/
+
+/*Use JOIN to display the first and last names, as well as the address, of each staff member.
+	*/
+    
+	SELECT
+		s.first_name
+		,s.last_name
+		,a.address
+		,a.address2
+		,c.city
+		,a.district
+		,a.postal_code
+	FROM
+		staff s
+	JOIN	
+		address a
+		ON s.address_id = a.address_id
+	JOIN
+		city c
+		ON a.city_id = c.city_id
+	;
+	
+	
