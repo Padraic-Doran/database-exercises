@@ -660,3 +660,216 @@ LIMIT 1001 OFFSET 999;
 
 SELECT * from `customer`
 LIMIT 100 OFFSET 100;
+
+/* JOINs
+
+Select customer first_name/last_name and actor first_name/last_name columns from performing a left join between the customer and actor column on the last_name column in each table. (i.e. customer.last_name = actor.last_name)
+Label customer first_name/last_name columns as customer_first_name/customer_last_name
+Label actor first_name/last_name columns in a similar fashion.
+-- returns correct number of records: 599 */
+
+Select customer.first_name as CUSTOMER_FIRST_NAME,
+	 customer.last_name as CUSTOMER_LAST_NAME, 
+	 actor.first_name as ACTOR_FIRST_NAME, 
+	 actor.last_name as ACTOR_LAST_NAME
+FROM customer
+LEFT JOIN actor ON customer.last_name = actor.last_name;
+
+/* Select the customer first_name/last_name and actor first_name/last_name columns from performing a /right join between the customer and actor column on the last_name column in each table. (i.e. customer.last_name = actor.last_name)
+-- returns correct number of records: 200 */
+
+Select customer.first_name as CUSTOMER_FIRST_NAME,
+	 customer.last_name as CUSTOMER_LAST_NAME, 
+	 actor.first_name as ACTOR_FIRST_NAME, 
+	 actor.last_name as ACTOR_LAST_NAME
+FROM customer
+RIGHT JOIN actor ON customer.last_name = actor.last_name;
+
+/* Select the customer first_name/last_name and actor first_name/last_name columns from performing an inner join between the customer and actor column on the last_name column in each table. (i.e. customer.last_name = actor.last_name)
+returns correct number of records: 43 */
+
+Select customer.first_name as CUSTOMER_FIRST_NAME,
+	 customer.last_name as CUSTOMER_LAST_NAME, 
+	 actor.first_name as ACTOR_FIRST_NAME, 
+	 actor.last_name as ACTOR_LAST_NAME
+FROM customer
+INNER JOIN actor ON customer.last_name = actor.last_name;
+
+/* Select the city name and country name columns from the city table, performing a left join with the country table to get the country name column.
+-- Returns correct records: 600 */
+
+SELECT city.city as city, country.country as country
+From city
+left join country using(country_id);
+
+/* Select the title, description, release year, and language name columns from the film table, performing a left join with the language table to get the "language" column.
+Label the language.name column as "language"
+Returns 1000 rows */
+
+SELECT title, description, release_year, language.name as 'language'
+from film
+left join language using(Language_ID);
+
+/* Select the first_name, last_name, address, address2, city name, district, and postal code columns from the staff table, performing 2 left joins with the address table then the city table to get the address and city related columns.
+returns correct number of rows: 2 */
+
+SELECT * from staff;
+SELECT * from address;
+SELECT * from city;
+SELECT staff.first_name, staff.last_name, address.address, address.address2, city.city, address.district, address.postal_code
+FROM staff
+LEFT JOIN address using(`address_id`)
+LEFT JOIN city using(city_id);
+
+
+-- What is the average replacement cost of a film? Does this change depending on the rating of the film?
+
+SELECT * from film;
+
+Select Avg(replacement_cost)
+from film;
+
+Select rating, AVG(replacement_cost)
+from film
+GROUP BY rating;
+
+-- How many different films of each genre are in the database?
+
+SELECT * from film_category;
+SELECT * from category;
+
+SELECT category.name as CATEGORY, COUNT(category_id) as Total_Count
+from film_category
+join category using(category_id)
+GROUP BY CATEGORY;
+
+-- What are the 5 frequently rented films?
+
+SELECT * from rental;
+SELECT * from inventory;
+SELECT * from film;
+
+select title, count(*) as total
+from film
+join inventory using(film_id)
+join rental using(inventory_id)
+group by title
+order by total desc
+limit 5;
+
+/* What are the most most profitable films (in terms of gross revenue)?
+
+
++-------------------+--------+
+| title             | total  |
++-------------------+--------+
+| TELEGRAPH VOYAGE  | 231.73 |
+| WIFE TURN         | 223.69 |
+| ZORRO ARK         | 214.69 |
+| GOODFELLAS SALUTE | 209.69 |
+| SATURDAY LAMBS    | 204.72 |
++-------------------+--------+
+5 rows in set (0.17 sec) */
+
+select title, sum(amount) as total
+from film
+join inventory using(film_id)
+join rental using(inventory_id)
+join payment using(rental_id)
+group by title
+order by total desc
+limit 5;
+
+/* 
+Who is the best customer?
+
+
++------------+--------+
+| name       | total  |
++------------+--------+
+| SEAL, KARL | 221.55 |
++------------+--------+
+-- 1 row in set (0.12 sec) */
+
+select concat(last_name,", ",first_name) as name,
+sum(amount) as total
+from customer
+join payment using(customer_id)
+group by customer_id
+order by total desc
+limit 1;
+
+/* Who are the most popular actors (that have appeared in the most films)?
+
+
++-----------------+-------+
+| actor_name      | total |
++-----------------+-------+
+| DEGENERES, GINA |    42 |
+| TORN, WALTER    |    41 |
+| KEITEL, MARY    |    40 |
+| CARREY, MATTHEW |    39 |
+| KILMER, SANDRA  |    37 |
++-----------------+-------+
+5 rows in set (0.07 sec) */
+
+
+
+select concat(last_name,", ",first_name) as actor_name,
+count(*) as total
+from actor
+join film_actor using(actor_id)
+group by actor_name
+order by total desc
+limit 5;
+
+/* What are the sales for each store for each month in 2005?
+
+
++---------+----------+----------+
+| month   | store_id | sales    |
++---------+----------+----------+
+| 2005-05 |        1 |  2459.25 |
+| 2005-05 |        2 |  2364.19 |
+| 2005-06 |        1 |  4734.79 |
+| 2005-06 |        2 |  4895.10 |
+| 2005-07 |        1 | 14308.66 |
+| 2005-07 |        2 | 14060.25 |
+| 2005-08 |        1 | 11933.99 |
+| 2005-08 |        2 | 12136.15 |
++---------+----------+----------+
+8 rows in set (0.14 sec) */
+
+select month(payment_date) as month,
+store_id,
+sum(amount) as sales
+from payment
+join staff using(staff_id)
+where payment_date like "2005%"
+group by month,store_id;
+
+/* Bonus: Find the film title, customer name, customer phone number, and customer address for all the outstanding DVDs.
+
+
++------------------------+------------------+--------------+
+| title                  | customer_name    | phone        |
++------------------------+------------------+--------------+
+| HYDE DOCTOR            | KNIGHT, GAIL     | 904253967161 |
+| HUNGER ROOF            | MAULDIN, GREGORY | 80303246192  |
+| FRISCO FORREST         | JENKINS, LOUISE  | 800716535041 |
+| TITANS JERK            | HOWELL, WILLIE   | 991802825778 |
+| CONNECTION MICROCOSMOS | DIAZ, EMILY      | 333339908719 |
++------------------------+------------------+--------------+
+5 rows in set (0.06 sec) */
+
+
+select title,
+concat(last_name,", ",first_name) as customer_name,
+phone,
+address
+from rental
+join customer using(customer_id)
+join address using(address_id)
+join inventory using(inventory_id)
+join film using(film_id)
+where return_date is null;
